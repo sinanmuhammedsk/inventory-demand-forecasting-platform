@@ -18,7 +18,8 @@ class DatabaseManager:
         self.mysql_db = os.environ.get("MYSQL_DB", "inventory_forecast_db")
         self.mysql_port = int(os.environ.get("MYSQL_PORT", 3306))
         
-        self.sqlite_db_path = r"d:\forecast\database\inventory_forecast.db"
+        # Use a path relative to the project root for cross‑platform compatibility
+        self.sqlite_db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "database", "inventory_forecast.db")
         self.db_mode = "SQLITE"
         
         # Check if we should use MySQL

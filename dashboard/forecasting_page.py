@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-from models.predictor import DemandPredictor
+from ..models.predictor import DemandPredictor
 from dashboard.mappings import get_store_label, get_dept_label
 import io
 

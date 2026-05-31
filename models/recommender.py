@@ -1,8 +1,8 @@
 import os
 import pandas as pd
 import numpy as np
-from models.predictor import DemandPredictor
-from database.db_manager import DatabaseManager
+from .predictor import DemandPredictor
+from ..database.db_manager import DatabaseManager
 
 class InventoryRecommender:
     def __init__(self):

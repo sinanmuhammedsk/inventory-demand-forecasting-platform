@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import io
 import os
-from models.train import train_and_evaluate
+from ..models.train import train_and_evaluate
 import subprocess
 
 def render_reports_page(db):
