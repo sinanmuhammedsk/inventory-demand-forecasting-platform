@@ -5,61 +5,78 @@ import plotly.express as px
 import plotly.graph_objects as go
 from dashboard.mappings import get_store_label, get_dept_label
 
-@st.cache_data
-def get_filter_options(_db):
-    """Fetches unique stores, departments, and date ranges from DB for filters (cached)."""
-    conn = _db.get_connection()
-    cursor = conn.cursor()
+import datetime as _dt
+
+def _safe_date(val, fallback):
+    """Convert val to a real datetime.date; return fallback on any error."""
+    if val is None:
+        return fallback
     try:
-        cursor.execute("SELECT DISTINCT store FROM sales_data ORDER BY store")
-        stores = [row[0] for row in cursor.fetchall()]
-        
-        cursor.execute("SELECT DISTINCT dept FROM sales_data ORDER BY dept")
-        depts = [row[0] for row in cursor.fetchall()]
-        
-        cursor.execute("SELECT MIN(date), MAX(date) FROM sales_data")
-        min_date, max_date = cursor.fetchone()
-        
-        # Parse dates
-        min_date = pd.to_datetime(min_date).date()
-        max_date = pd.to_datetime(max_date).date()
+        parsed = pd.to_datetime(val)
+        if pd.isna(parsed):
+            return fallback
+        return parsed.date()
+    except Exception:
+        return fallback
+
+def get_filter_options(_db):
+    """Fetches unique stores, departments, and date ranges from DB for filters."""
+    _fallback_min = _dt.date(2010, 2, 5)
+    _fallback_max = _dt.date(2012, 10, 26)
+    stores = list(range(1, 46))
+    depts  = list(range(1, 100))
+    min_date = _fallback_min
+    max_date = _fallback_max
+    try:
+        conn   = _db.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM sales_data")
+        cnt = cursor.fetchone()[0]
+        if cnt > 0:
+            cursor.execute("SELECT DISTINCT store FROM sales_data ORDER BY store")
+            stores = [row[0] for row in cursor.fetchall()]
+            cursor.execute("SELECT DISTINCT dept FROM sales_data ORDER BY dept")
+            depts  = [row[0] for row in cursor.fetchall()]
+            cursor.execute("SELECT MIN(date), MAX(date) FROM sales_data")
+            raw_min, raw_max = cursor.fetchone()
+            min_date = _safe_date(raw_min, _fallback_min)
+            max_date = _safe_date(raw_max, _fallback_max)
+        conn.close()
     except Exception as e:
         print(f"Error fetching filter options: {e}")
-        stores = list(range(1, 46))
-        depts = list(range(1, 100))
-        min_date = pd.to_datetime('2010-02-05').date()
-        max_date = pd.to_datetime('2012-10-26').date()
-    finally:
-        conn.close()
-        
+    # Final safety: ensure they are real date objects
+    if not isinstance(min_date, _dt.date):
+        min_date = _fallback_min
+    if not isinstance(max_date, _dt.date):
+        max_date = _fallback_max
     return stores, depts, min_date, max_date
 
 def render_analytics_page(db):
     st.markdown("<h1 style='text-align: center; color: #FFC220; margin-bottom: 5px;'>Exploratory Data & Market Analytics</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: #94A3B8; font-size:1.05rem;'>Drill down into retail trends, analyze macroeconomic factors, and examine correlations</p>", unsafe_allow_html=True)
     st.markdown("---")
-    
-    # 1. Get options
+
+    # 1. Get options (no cache – always read live from DB)
     stores, depts, min_date, max_date = get_filter_options(db)
-    
+
     # 2. Filters layout
     st.markdown("#### Filter Analytics View")
     col1, col2, col3, col4 = st.columns(4)
-    
+
     with col1:
         selected_store = st.selectbox(
-            "Select Store", 
-            [None] + stores, 
+            "Select Store",
+            [None] + stores,
             format_func=lambda x: "All Stores" if x is None else get_store_label(x)
         )
-        
+
     with col2:
         selected_dept = st.selectbox(
-            "Select Department", 
-            [None] + depts, 
+            "Select Department",
+            [None] + depts,
             format_func=lambda x: "All Departments" if x is None else get_dept_label(x)
         )
-        
+
     with col3:
         date_range = st.date_input(
             "Select Date Range", 
@@ -120,15 +137,19 @@ def render_analytics_page(db):
             "raw",
             "features.csv",
         )
-        try:
-            features_df = pd.read_csv(raw_features_path)
-            features_df['Date'] = pd.to_datetime(features_df['Date'])
-        except FileNotFoundError:
-            st.warning("Features dataset not found; economy analysis will be skipped.")
-            features_df = pd.DataFrame()
-        
-        # Aggregated features by store & date for economy
-        econ_df = pd.merge(df, features_df, left_on=['store', 'date'], right_on=['Store', 'Date'], how='left')
+        if os.path.exists(raw_features_path):
+            try:
+                features_df = pd.read_csv(raw_features_path)
+                if 'Date' in features_df.columns:
+                    features_df['Date'] = pd.to_datetime(features_df['Date'])
+                # Aggregated features by store & date for economy
+                econ_df = pd.merge(df, features_df, left_on=['store', 'date'], right_on=['Store', 'Date'], how='left')
+            except Exception as e:
+                st.warning(f"Failed to load features.csv: {e}. Economy analysis will be skipped.")
+                econ_df = df.copy()
+        else:
+            st.warning("features.csv not found; economy analysis will be skipped.")
+            econ_df = df.copy()
         
     except Exception as e:
         st.error(f"Error executing analytics query: {e}")
