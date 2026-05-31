@@ -30,16 +30,24 @@ def seed():
         return
 
     # Resolve path to dataset
-    processed_path = os.path.join(
+    parquet_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "..", "dataset", "processed", "analytical_dataset.parquet"
+    )
+    csv_path = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "..", "dataset", "processed", "analytical_dataset.csv"
     )
-    if not os.path.exists(processed_path):
+
+    if os.path.exists(parquet_path):
+        print(f"Loading processed dataset from {parquet_path}...")
+        df = pd.read_parquet(parquet_path)
+    elif os.path.exists(csv_path):
+        print(f"Loading processed dataset from {csv_path}...")
+        df = pd.read_csv(csv_path)
+    else:
         print("Processed analytical dataset not found. Seeding skipped.")
         return
 
-    print(f"Loading processed dataset from {processed_path}...")
-    df = pd.read_csv(processed_path)
-    # Align column names with DB schema
+    # Align column names with DB schema (same for CSV or Parquet)
     df = df.rename(columns={
         "Store": "store",
         "Dept": "dept",
