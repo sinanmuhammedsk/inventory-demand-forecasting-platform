@@ -110,7 +110,7 @@ def render_forecasting_page(db):
                 with col_m2:
                     st.metric("Avg Weekly Forecasted Sales", f"${avg_forecast:,.2f}")
                 with col_m3:
-                    st.metric("Model In-Use", f"{predictor.model_package.get('model_name', 'Random Forest')}")
+                    st.metric("Model In-Use", getattr(predictor, "model_name", "Random Forest"))
                     
                 st.markdown("---")
                 
