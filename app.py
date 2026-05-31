@@ -82,10 +82,14 @@ if "db" not in st.session_state:
         conn.close()
         if count == 0:
             st.info("Seeding database for the first time…")
-            seed()
+            with st.spinner("Seeding database (this may take a few minutes)..."):
+                seed()
+            st.success("Database seeding completed.")
     except Exception as e:
         st.warning(f"Database check failed ({e}); attempting seeding.")
-        seed()
+        with st.spinner("Seeding database (this may take a few minutes)..."):
+            seed()
+        st.success("Database seeding completed.")
     st.session_state.db = db
 else:
     db = st.session_state.db

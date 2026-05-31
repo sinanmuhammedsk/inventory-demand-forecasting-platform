@@ -51,9 +51,7 @@ def render_recommendations_page(db):
         current_stock = st.number_input("Current Stock Level (Units)", min_value=0, value=default_stock, step=50)
         horizon = st.selectbox("Planning Horizon", [7, 30, 90], index=1, format_func=lambda x: f"{x} Days")
         
-    if st.button("Generate Optimization Metrics", type="primary"):
-        db.log_activity("admin", f"Run recommendation: Store {store_sel}, Dept {dept_sel}, Stock {current_stock}", "Recommendations")
-        
+    if st.button("Generate & Save Optimization Metrics", type="primary"):
         # Calculate
         rec = recommender.generate_recommendation(
             store=store_sel,
@@ -63,6 +61,19 @@ def render_recommendations_page(db):
             service_level=service_level,
             horizon_days=horizon
         )
+        
+        # Log activity and save to DB
+        db.log_activity("admin", f"Run & Save recommendation: Store {store_sel}, Dept {dept_sel}, Stock {current_stock}", "Recommendations")
+        db.save_recommendation(
+            store=store_sel,
+            dept=dept_sel,
+            current_stock=int(current_stock),
+            forecasted_demand=rec["expected_demand"],
+            rec_type=rec["recommendation_type"],
+            quantity=rec["recommended_quantity"],
+            cost=rec["estimated_cost"]
+        )
+        st.success("Recommendation saved to database successfully.")
         
         # Style Alert cards for Dark Theme
         st.markdown("<br>", unsafe_allow_html=True)

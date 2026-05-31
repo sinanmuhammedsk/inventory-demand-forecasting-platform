@@ -322,14 +322,14 @@ def render_dashboard_page(db):
     st.markdown("### Executive Summary Insights")
     st.markdown(
         """
-        <div style="background-color: #1E293B; border-radius: 8px; padding: 15px; border-left: 5px solid #0071CE; border: 1px solid #334155; border-left: 6px solid #0071CE;">
-            <ul style="margin: 0; padding-left: 20px; font-size: 0.95rem; color: #0F172A; line-height: 1.6;">
-                <li><b>Holiday Revenue Spikes</b>: Historically, promotional events and Thanksgiving/Christmas holiday weeks see average weekly sales jump by <b style="color: #FFC220;">28.4%</b> compared to regular weeks, creating seasonal supply bottlenecks.</li>
-                <li><b>Top Performer</b>: <b style="color: #F8FAFC;">Store #20 (Seattle, WA)</b> and <b style="color: #F8FAFC;">Store #4 (Houston, TX)</b> lead all 45 locations in total revenue contribution, together accounting for over <b style="color: #FFC220;">6%</b> of total enterprise sales.</li>
-                <li><b>Store Type Efficiency</b>: <b style="color: #F8FAFC;">Type A</b> stores account for the majority of sales volume (approx. <b style="color: #FFC220;">64%</b>), driven by larger catalog footprints (average store size of 177,000 sq ft).</li>
-                <li><b>Macroeconomic Resilience</b>: Weekly sales demonstrate low correlation with short-term Fuel Price changes, showing that retail foot traffic remains robust despite energy price fluctuations.</li>
+        <div style="background-color:#1E293B; border-radius:8px; padding:15px; border-left:6px solid #0071CE; border:1px solid #334155;">
+            <ul style="margin:0; padding-left:20px; font-size:0.95rem; color:#F8FAFC; line-height:1.6;">
+                <li><b>Holiday Revenue Spikes</b>: Historically, promotional events and Thanksgiving/Christmas weeks see average weekly sales jump by <b style="color:#FFC220;">28.4%</b> compared to regular weeks, creating seasonal supply bottlenecks.</li>
+                <li><b>Top Performer</b>: <b style="color:#F8FAFC;">Store #20 (Seattle, WA)</b> and <b style="color:#F8FAFC;">Store #4 (Houston, TX)</b> lead all locations, accounting for over <b style="color:#FFC220;">6%</b> of enterprise sales.</li>
+                <li><b>Store Type Efficiency</b>: <b style="color:#F8FAFC;">Type A</b> stores contribute ~<b style="color:#FFC220;">64%</b> of sales volume.</li>
+                <li><b>Macroeconomic Resilience</b>: Weekly sales show low correlation with short‑term fuel price changes, indicating robust foot traffic.</li>
             </ul>
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )

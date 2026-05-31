@@ -112,8 +112,20 @@ def render_analytics_page(db):
         df['date'] = pd.to_datetime(df['date'])
         
         # Load external features to join for economic analysis
-        features_df = pd.read_csv(r"d:\forecast\dataset\raw\features.csv")
-        features_df['Date'] = pd.to_datetime(features_df['Date'])
+        import os
+        raw_features_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "..",
+            "dataset",
+            "raw",
+            "features.csv",
+        )
+        try:
+            features_df = pd.read_csv(raw_features_path)
+            features_df['Date'] = pd.to_datetime(features_df['Date'])
+        except FileNotFoundError:
+            st.warning("Features dataset not found; economy analysis will be skipped.")
+            features_df = pd.DataFrame()
         
         # Aggregated features by store & date for economy
         econ_df = pd.merge(df, features_df, left_on=['store', 'date'], right_on=['Store', 'Date'], how='left')

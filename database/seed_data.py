@@ -29,22 +29,41 @@ def seed():
         print(f"Database already seeded with {count:,} records. Skipping.")
         return
 
-    # Correct relative path to the processed analytical dataset
+    # Resolve path to dataset
     processed_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "..",
-        "dataset",
-        "processed",
-        "analytical_dataset.csv",
+        os.path.dirname(os.path.abspath(__file__)), "..", "dataset", "processed", "analytical_dataset.csv"
     )
-    if os.path.exists(processed_path):
-        print(f"Loading processed dataset from {processed_path}...")
-        df = pd.read_csv(processed_path)
-        df['Date'] = pd.to_datetime(df['Date'])
-        db.bulk_insert_sales_data(df)
-        print("Database seeding completed successfully.")
-    else:
+    if not os.path.exists(processed_path):
         print("Processed analytical dataset not found. Seeding skipped.")
+        return
+
+    print(f"Loading processed dataset from {processed_path}...")
+    df = pd.read_csv(processed_path)
+    # Align column names with DB schema
+    df = df.rename(columns={
+        "Store": "store",
+        "Dept": "dept",
+        "Date": "date",
+        "Weekly_Sales": "weekly_sales",
+        "IsHoliday": "is_holiday",
+    })
+    df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
+
+    # Speed up bulk insert for SQLite
+    conn = db.get_connection()
+    if db.db_mode == "SQLITE":
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA journal_mode = OFF;")
+        cursor.execute("PRAGMA synchronous = OFF;")
+        conn.commit()
+    try:
+        df.to_sql("sales_data", conn, if_exists="append", index=False, chunksize=10000, method="multi")
+        print("Database seeding completed successfully.")
+    except Exception as e:
+        print(f"Error during bulk insert: {e}")
+    finally:
+        conn.close()
+
 
 if __name__ == "__main__":
     seed()
