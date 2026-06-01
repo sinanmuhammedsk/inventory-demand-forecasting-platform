@@ -2,7 +2,7 @@
 
 An end-to-end, production-ready Business Intelligence (BI) and predictive analytics dashboard. This platform leverages machine learning models trained on real-world retail data to forecast weekly demand, optimize safety stock thresholds, trigger restocking triggers, and audit warehouse inventory gaps.
 
-[![Streamlit App](https://inventory-demand-forecasting-system-i3kenowgstrla3kt67l7z6.streamlit.app)
+[Inventory Demand Forecasting Dashboard](https://inventory-demand-forecasting-system-i3kenowgstrla3kt67l7z6.streamlit.app/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
