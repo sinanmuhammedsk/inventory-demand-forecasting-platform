@@ -1,4 +1,5 @@
 import streamlit as st
+# Data Management UI removed; handled in backend
 import os
 from database.db_manager import DatabaseManager
 from dashboard.dashboard_page import render_dashboard_page
@@ -64,7 +65,8 @@ import os
 import sys
 
 # Ensure project root on sys.path for direct script imports
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "")))
+# Ensure project root is on sys.path for imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Import seed function for auto‑seeding on fresh deployments
 from database.seed_data import seed
@@ -73,24 +75,30 @@ from database.seed_data import seed
 if "db" not in st.session_state:
     db = DatabaseManager()
     db.init_db()
-    # Safe check for existing rows in sales_data; seed if empty or table missing
-    try:
-        conn = db.get_connection()
-        cur = conn.cursor()
-        cur.execute("SELECT COUNT(*) FROM sales_data")
-        count = cur.fetchone()[0]
-        conn.close()
-        if count == 0:
-            st.info("Seeding database for the first time…")
-            with st.spinner("Seeding database (this may take a few minutes)..."):
+    # Ensure data is present – seed if sales_data empty
+    with st.spinner("Ensuring database is seeded (may take a few minutes)…"):
+        try:
+            conn = db.get_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT COUNT(*) FROM sales_data")
+            cnt = cur.fetchone()[0]
+            conn.close()
+            if cnt == 0:
                 seed()
-            st.success("Database seeding completed.")
-    except Exception as e:
-        st.warning(f"Database check failed ({e}); attempting seeding.")
-        with st.spinner("Seeding database (this may take a few minutes)..."):
+        except Exception as e:
+            st.warning(f"Seeding verification failed ({e}); attempting seed.")
             seed()
-        st.success("Database seeding completed.")
     st.session_state.db = db
+    # Debug: log row count after potential seeding
+    try:
+        conn_dbg = db.get_connection()
+        cur_dbg = conn_dbg.cursor()
+        cur_dbg.execute("SELECT COUNT(*) FROM sales_data")
+        rows = cur_dbg.fetchone()[0]
+        print(f"DEBUG: sales_data rows after seed = {rows}")
+        conn_dbg.close()
+    except Exception as e:
+        print(f"DEBUG: failed to count rows ({e})")
 else:
     db = st.session_state.db
 

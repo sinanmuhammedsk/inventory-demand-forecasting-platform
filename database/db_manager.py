@@ -30,6 +30,18 @@ class DatabaseManager:
             
         print(f"Database Manager initialized in {self.db_mode} mode.")
 
+        # Bootstrap SQLite DB by copying existing seeded database if it doesn't exist in temp directory
+        if self.db_mode == "SQLITE" and not os.path.exists(self.sqlite_db_path):
+            import shutil
+            repo_db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inventory_forecast.db")
+            if os.path.exists(repo_db_path):
+                try:
+                    os.makedirs(os.path.dirname(self.sqlite_db_path), exist_ok=True)
+                    shutil.copy2(repo_db_path, self.sqlite_db_path)
+                    print(f"Successfully bootstrapped SQLite DB from {repo_db_path} to {self.sqlite_db_path}")
+                except Exception as e:
+                    print(f"Failed to bootstrap pre-seeded SQLite DB: {e}")
+
     def get_connection(self):
         """Returns a database connection based on config mode."""
         if self.db_mode == "MYSQL":

@@ -116,7 +116,7 @@ def seed():
 
     try:
         df.to_sql("sales_data", conn, if_exists="append", index=False,
-                  chunksize=10000, method="multi")
+                  chunksize=10000)
         print(f"Database seeding completed: {len(df):,} rows inserted.")
     except Exception as e:
         print(f"Error during bulk insert: {e}")
