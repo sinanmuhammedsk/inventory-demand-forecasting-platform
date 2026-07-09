@@ -2,7 +2,7 @@
 
 An end-to-end, production-ready Business Intelligence (BI) and predictive analytics dashboard. This platform leverages machine learning models trained on real-world retail data to forecast weekly demand, optimize safety stock thresholds, trigger restocking triggers, and audit warehouse inventory gaps.
 
-[Inventory Demand Forecasting Dashboard](https://inventory-demand-forecasting-system-i3kenowgstrla3kt67l7z6.streamlit.app/)
+[Inventory Demand Forecasting Web Dashboard (Vercel-Deployed)](https://inventory-demand-forecasting-platfo.vercel.app/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -147,17 +147,11 @@ Expose `database/schema.sql` to your MySQL instance to pre-create tables.
 
 ---
 
-## 🌐 Deployment to Streamlit Cloud
+## 🌐 Deployment to Vercel
 
 1.  Push the repository to GitHub.
-2.  Log in to [Streamlit Share](https://share.streamlit.io/).
-3.  Click "New App" and select your repository, branch, and `app.py` as the entrypoint.
-4.  *(Optional)* Under **Advanced settings**, paste your production MySQL credentials into the Secrets text area:
-    ```toml
-    MYSQL_HOST = "your-database-host"
-    MYSQL_USER = "your-database-user"
-    MYSQL_PASSWORD = "your-database-password"
-    MYSQL_DB = "inventory_forecast_db"
-    MYSQL_PORT = 3306
-    ```
-5.  Click **Deploy**. Streamlit Cloud will parse `requirements.txt`, install dependencies, load the cached datasets, and spin up the dashboard.
+2.  Log in to [Vercel](https://vercel.com).
+3.  Import the repository: `inventory-demand-forecasting-platform`.
+4.  Leave all settings as default, as the project serves static web assets directly from the repository root.
+5.  Click **Deploy**. Vercel will host the Single-Page Application (SPA) instantly.
+
